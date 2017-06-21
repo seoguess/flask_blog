@@ -102,6 +102,25 @@
 </article>
 {% endfor %}
 
+    {% for post in posts %}  
+    {{ post.title }}  
+    {% endfor %}  
+
+<ul id="menu">
+    {% if pagination.has_prev %}  
+    <li>  
+        <a href="/index/{{pagination.page-1}}" >«</a>  
+    </li>
+    {% endif %}  
+        {% for p in pagination.iter_pages() %}  
+            <li>  
+            <a href="/index/{{p}}">{{p}}</a>  
+            </li>  
+        {% endfor %}  
+    <li>  
+        <a href="{%if pagination.has_next %}/index/{{pagination.page+1}}{% else %}#{% endif %}" >»</a>  
+    </li>  
+</ul>
 <nav class="pagination" role="navigation">
     <span class="page-number">第 1 页 &frasl; 共 8 页</span>
         <a class="older-posts" href="/page/2/"><i class="fa fa-angle-right"></i></a>

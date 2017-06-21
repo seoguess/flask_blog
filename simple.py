@@ -14,6 +14,8 @@ from flask import session
 import bloginfo
 #导入MySQLdb
 import MySQLdb
+#导入Flask-SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 
 
 import sys
@@ -52,6 +54,22 @@ SQL_prev_topic = 'select title,url,id from topic order by rand() limit 2'
 #创建一个Flask对象
 app = Flask(__name__)
 app.secret_key = "\xea\tR\xe8#\xa0\xbd\x95\xf44h\xce\xa4\xd6\xdf\x98I\xcb\xea\x15\xce\x83\x7f|k\r\xa6\xafWIY\x0f"
+#关联数据库，初始化db
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    "mysql://shawn:huangdonghui@localhost/blog"
+db = SQLAlchemy(app)
+
+
+#定义Post类
+class Post(db.Model):  
+    __tablename__='topic'  
+    id=db.Column(db.Integer,primary_key=True,autoincrement=True)
+    title=db.Column(db.String(80),unique=True)
+    tag=db.Column(db.String(10))
+    author=db.Column(db.String(80),default="无名小编")
+    date=db.Column(db.DateTime)
+    content=db.Column(db.Text)
+    mark=db.Column(db.Integer,default=0)  
 
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.sqlite3'
@@ -106,8 +124,9 @@ def show_all():
 
     recommonds = mysql_get_value(SQL_recommond_list,(),True)[1]
     recommonds_list = [ dict(zip(("title", 'url', 'date'),recommond)) for recommond in recommonds ]
-
-    return render_template('index.html', blog_title = blog_title, blog_indro = blog_indro, cnt=cnt, r_list = recommonds_list)
+    pagination=Post.query.paginate(1,per_page=1,error_out=False)
+    posts=pagination.items
+    return render_template('index.html', blog_title = blog_title, blog_indro = blog_indro, cnt=cnt, r_list = recommonds_list,pagination=pagination,posts = posts)
 
 # @app.route('/add', methods = ['GET', 'POST'])
 # def new():
